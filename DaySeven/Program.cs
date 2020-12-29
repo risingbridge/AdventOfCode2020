@@ -10,7 +10,7 @@ namespace DaySeven
 	{
 		static void Main(string[] args)
 		{
-			string inputFile = "./input.txt";
+			string inputFile = "./debugTwo.txt";
 			string[] inputArray = File.ReadAllLines(inputFile);
 			List<Bag> bags = new List<Bag>();
 			//Parse input
@@ -98,12 +98,17 @@ namespace DaySeven
 				bags.Add(bag);
 			}
 
+			List<string> GoldenBagContains = new List<string>();
 			foreach (BagTwo bag in bags.Where(b => b.Name == "shiny gold"))
 			{
 				Console.WriteLine($"Shiny gold bag contains:");
 				foreach (BagChild child in bag.Childs)
 				{
 					Console.WriteLine($"{child.Name}");
+					for (int i = 0; i < child.count; i++)
+					{
+						GoldenBagContains.Add(child.Name);
+					}
 				}
 			}
 		}

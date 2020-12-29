@@ -1,69 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace DayNine
 {
 	class Program
 	{
+		static string inputFile = "./input.txt";
+		static int preambleSize = 25;
 		static void Main(string[] args)
 		{
-			List<double> inputList = new List<double>();
-			foreach (string item in File.ReadAllLines("./debug.txt"))
-			{
-				inputList.Add(double.Parse(item));
-			}
-			//int[] inputArray = File.ReadAllLines("./input.txt");
+			string[] input = File.ReadAllLines(inputFile);
+			long[] inputs = Array.ConvertAll(input, s => long.Parse(s));
 
-
-			List<double> preambleList = new List<double>();
-			List<double> preambleSums = new List<double>();
-			int preamble = 5;
-			bool skippedOnce = false;
-
-			for (int i = 0; i < preamble; i++)
-			{
-				preambleList.Add(inputList[i]);
-			}
-			preambleSums = new List<double>(CalculatePreambleSums(preamble, preambleList));
-
-			for (int i = preamble; i < inputList.Count; i++)
-			{
-				if (!preambleSums.Contains(inputList[i]))
-				{
-					if (skippedOnce)
-					{
-						Console.WriteLine($"{inputList[i]} is wrong!");
-					}
-					else
-					{
-						Console.WriteLine($"This does not compute, {inputList[i]}. Old sums is {preambleSums.Count} long");
-						preambleList.Add(inputList[i]);
-						preambleSums.Clear();
-						preambleSums = new List<double>(CalculatePreambleSums(preamble, preambleList));
-						Console.WriteLine($"Realculated, number of sums is {preambleSums.Count}");
-						skippedOnce = true;
-					}
-				}
-			}
+			Console.WriteLine($"Part One: {SolvePartOne(inputs)}");
+			Console.WriteLine($"Part two: {SolvePartTwo(inputs, SolvePartOne(inputs))}");
 		}
 
-		static List<double> CalculatePreambleSums(int preamble, List<double> pl)
+		static long SolvePartTwo(long[] inputs, long findThis)
 		{
-			List<double> sums = new List<double>();
-
-			for (int x = 0; x < preamble; x++)
+			for (int x = 0; x < inputs.Length; x++)
 			{
-				for (int y = 0; y < preamble; y++)
+				for (int y = x + 2; y < inputs.Length; y++)
 				{
-					if(!sums.Contains(pl[x] + pl[y]))
+					long[] tempArray = inputs[x..y];
+					long tempSum = tempArray.Sum();
+					if(tempSum == findThis)
 					{
-						sums.Add(pl[x] + pl[y]);
+						return tempArray.Min() + tempArray.Max();
 					}
 				}
 			}
 
-			return sums;
+			return 0;
+		}
+
+		static long SolvePartOne(long[] inputs)
+		{
+			List<long> results = new List<long>();
+			for (int i = preambleSize; i < inputs.Length; i++)
+			{
+				long current = inputs[i];
+				int xStart = i - preambleSize;
+
+				for (int x = xStart; x < i; x++)
+				{
+					for (int y = xStart; y < i; y++)
+					{
+						if(inputs[x] != inputs[y] && inputs[x] + inputs[y] == current)
+						{
+							results.Add(current);
+						}
+					}
+				}
+
+				if(!results.Exists(x => x == current))
+				{
+					return current;
+				}
+			}
+
+			return 0;
 		}
 	}
 }
